@@ -127,22 +127,60 @@ GROUP BY
 ORDER BY
 	pays DESC;
 
-----
+-- 6)
+SELECT
+	product_category_name_english,
+	items.price,
+	orders.order_purchase_timestamp
+FROM 
+	orders
+LEFT JOIN
+	items
+ON 
+	orders.order_id = items.order_id
+LEFT JOIN
+	products
+ON
+	items.product_id = products.product_id
+LEFT JOIN 
+	product_category_translation
+ON 
+	products.product_category_name = product_category_translation.product_category_name
+WHERE 
+	items.price IS NOT NULL;
+
+
+-- 7) 
+SELECT product_weight, product_length_cm, product_height_cm, product_width_cm, 
+       product_length_cm * product_height_cm * product_width_cm AS product_volume_cm3 
+FROM your_table_name;
+
 
 SELECT 
-	products.product_id, 
-	product_category_translation.product_category_name_english,
-	products.product_name_lenght,
-	products.product_description_lenght,
-	products.product_photos_qty,
-	products.product_weight_g,
-	products.product_length_cm,
-	products.product_height_cm,
-	products.product_width_cm
+	--orders.order_id,
+	items.product_id,
+	sum(items.price) as sales,
+	items.price,
+	product_length_cm * product_height_cm * product_width_cm AS product_volume_cm3,
+	product_category_name_english
 FROM 
-	products 
+	orders
 LEFT JOIN
-	product_category_translation 
+	items
+ON
+	orders.order_id = items.order_id
+RIGHT JOIN
+	products
 ON 
-	product_category_translation.product_category_name = products.product_category_name;
-	
+	items.product_id = products.product_id
+RIGHT JOIN
+	product_category_translation
+ON
+	products.product_category_name = product_category_translation.product_category_name
+GROUP BY 
+	items.product_id,
+	items.price,
+	product_volume_cm3,
+	product_category_name_english
+ORDER BY 
+	sales;
